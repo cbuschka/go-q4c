@@ -1,4 +1,4 @@
-# go-q4c - queries for collections for go
+# go-q4c - queries for collections in go
 
 ## License
 Copyright (c) 2025 by the go-q4c maintainers.
