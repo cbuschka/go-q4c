@@ -2,18 +2,6 @@ package q4c
 
 import "iter"
 
-type UniFilterCondition[E1 any] func(e E1) bool
-
-type UniSelect[E1 any] interface {
-	Stream() iter.Seq[E1]
-	ToSlice() []E1
-}
-
-type UniSelectWithFilter[E1 any] interface {
-	UniSelect[E1]
-	Where(cond UniFilterCondition[E1]) UniSelect[E1]
-}
-
 type uniSelectImpl[E1 any] struct {
 	source func() iter.Seq[E1]
 }
@@ -49,7 +37,7 @@ func (u *uniSelectImpl[E1]) ToSlice() []E1 {
 	return elements
 }
 
-func SelectFrom[E1 any](elements []E1) UniSelectWithFilter[E1] {
+func SelectFrom[E1 any](elements []E1) FilterableUniSelect[E1] {
 	source := func() iter.Seq[E1] {
 		return func(yield func(E1) bool) {
 			for _, v := range elements {
@@ -60,5 +48,5 @@ func SelectFrom[E1 any](elements []E1) UniSelectWithFilter[E1] {
 		}
 	}
 
-	return UniSelectWithFilter[E1](&uniSelectImpl[E1]{source})
+	return FilterableUniSelect[E1](&uniSelectImpl[E1]{source})
 }
