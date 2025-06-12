@@ -6,3 +6,7 @@ all:	test
 .PHONY:	test
 test:
 	go test ./...
+
+.PHONY:	update-deps
+update-deps:
+	go get -d -v -u all
