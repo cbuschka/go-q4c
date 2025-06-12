@@ -6,23 +6,11 @@ import (
 )
 
 type uniSelectImpl[E1 any] struct {
-	source func() iter.Seq[E1]
+	source Source[E1]
 }
 
 func (u *uniSelectImpl[E1]) Where(cond types.UniFilterCondition[E1]) types.UniSelect[E1] {
-	filteredSource := func() iter.Seq[E1] {
-		return func(yield func(E1) bool) {
-			for e := range u.source() {
-				if !cond(e) {
-					continue
-				}
-
-				if !yield(e) {
-					return
-				}
-			}
-		}
-	}
+	filteredSource := u.source.FilteredBy(cond)
 
 	return types.UniSelect[E1](&uniSelectImpl[E1]{filteredSource})
 }
@@ -41,15 +29,7 @@ func (u *uniSelectImpl[E1]) ToSlice() []E1 {
 }
 
 func SelectFrom[E1 any](elements []E1) types.FilterableUniSelect[E1] {
-	source := func() iter.Seq[E1] {
-		return func(yield func(E1) bool) {
-			for _, v := range elements {
-				if !yield(v) {
-					return
-				}
-			}
-		}
-	}
+	source := SourceFromSlice(elements)
 
 	return types.FilterableUniSelect[E1](&uniSelectImpl[E1]{source})
 }
