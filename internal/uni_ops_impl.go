@@ -31,6 +31,14 @@ func (u *uniSelectImpl[E1]) ToSlice() []E1 {
 	return elements
 }
 
+func (u *uniSelectImpl[E1]) First() (element E1, found bool) {
+	slice := u.ToSlice()
+	if len(slice) == 0 {
+		return *new(E1), false
+	}
+	return slice[0], true
+}
+
 func (u *UniSetImpl[E1]) SelectFrom(elements []E1) types.FilterableUniSelect[E1] {
 	source := SourceFromSlice(elements)
 
