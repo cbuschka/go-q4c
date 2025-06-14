@@ -33,3 +33,26 @@ func (s Source[E]) FilteredBy(cond func(element E) bool) Source[E] {
 	}
 	return filteredSource
 }
+
+func NewSourceMappedBy[E any, R any](source Source[E], mapper func(element E) R) Source[R] {
+	mappedSource := func() iter.Seq[R] {
+		return func(yield func(R) bool) {
+			for e := range source() {
+				r := mapper(e)
+
+				if !yield(r) {
+					return
+				}
+			}
+		}
+	}
+	return mappedSource
+}
+
+func (s Source[E]) ToSlice() []E {
+	elements := make([]E, 0)
+	for element := range s() {
+		elements = append(elements, element)
+	}
+	return elements
+}
