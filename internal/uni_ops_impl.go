@@ -23,12 +23,7 @@ func (u *uniSelectImpl[E1]) Stream() iter.Seq[E1] {
 }
 
 func (u *uniSelectImpl[E1]) ToSlice() []E1 {
-	elements := make([]E1, 0)
-	for e := range u.Stream() {
-		elements = append(elements, e)
-	}
-
-	return elements
+	return u.source.ToSlice()
 }
 
 func (u *UniSetImpl[E1]) SelectFrom(elements []E1) types.FilterableUniSelect[E1] {
