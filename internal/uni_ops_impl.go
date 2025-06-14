@@ -5,6 +5,9 @@ import (
 	"iter"
 )
 
+type UniSetImpl[E1 any] struct {
+}
+
 type uniSelectImpl[E1 any] struct {
 	source Source[E1]
 }
@@ -28,7 +31,7 @@ func (u *uniSelectImpl[E1]) ToSlice() []E1 {
 	return elements
 }
 
-func SelectFrom[E1 any](elements []E1) types.FilterableUniSelect[E1] {
+func (u *UniSetImpl[E1]) SelectFrom(elements []E1) types.FilterableUniSelect[E1] {
 	source := SourceFromSlice(elements)
 
 	return types.FilterableUniSelect[E1](&uniSelectImpl[E1]{source})

@@ -13,3 +13,7 @@ type FilterableUniSelect[E1 any] interface {
 	UniSelect[E1]
 	Where(cond UniFilterCondition[E1]) UniSelect[E1]
 }
+
+type UniSet[E1 any] interface {
+	SelectFrom(elements []E1) FilterableUniSelect[E1]
+}
