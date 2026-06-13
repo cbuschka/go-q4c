@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/cbuschka/go-q4c"
-	"github.com/cbuschka/go-q4c/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,10 +18,10 @@ func TestBiOps(t *testing.T) {
 		Street   string
 	}
 
-	idOfPerson := types.KeyFunc[Person, interface{}](func(p Person) interface{} {
+	idOfPerson := q4c.KeyFunc[Person, interface{}](func(p Person) interface{} {
 		return p.Id
 	})
-	personIdOfAddress := types.KeyFunc[Address, interface{}](func(a Address) interface{} {
+	personIdOfAddress := q4c.KeyFunc[Address, interface{}](func(a Address) interface{} {
 		return a.PersonId
 	})
 
@@ -40,7 +39,7 @@ func TestBiOps(t *testing.T) {
 	allAddresses := []Address{dormitory, privetDrive, burrow, shack}
 	noAddresses := []Address{}
 
-	noPairs := []types.Pair[Person, Address]{}
+	noPairs := []q4c.Pair[Person, Address]{}
 
 	noFilter := func(Person, Address) bool {
 		return true
@@ -51,7 +50,7 @@ func TestBiOps(t *testing.T) {
 		persons   []Person
 		addresses []Address
 		filter    func(Person, Address) bool
-		expected  []types.Pair[Person, Address]
+		expected  []q4c.Pair[Person, Address]
 	}{
 		{
 			name:      "inner join, empy left",
@@ -79,14 +78,14 @@ func TestBiOps(t *testing.T) {
 			persons:   []Person{harry},
 			addresses: []Address{dormitory},
 			filter:    noFilter,
-			expected:  []types.Pair[Person, Address]{{Element1: harry, Element2: dormitory}},
+			expected:  []q4c.Pair[Person, Address]{{Element1: harry, Element2: dormitory}},
 		},
 		{
 			name:      "inner join, two, one to one",
 			persons:   []Person{harry, ron},
 			addresses: []Address{burrow, dormitory},
 			filter:    noFilter,
-			expected: []types.Pair[Person, Address]{{Element1: harry, Element2: dormitory},
+			expected: []q4c.Pair[Person, Address]{{Element1: harry, Element2: dormitory},
 				{Element1: ron, Element2: burrow}},
 		},
 		{
@@ -94,7 +93,7 @@ func TestBiOps(t *testing.T) {
 			persons:   []Person{harry},
 			addresses: []Address{privetDrive, dormitory},
 			filter:    noFilter,
-			expected: []types.Pair[Person, Address]{{Element1: harry, Element2: privetDrive},
+			expected: []q4c.Pair[Person, Address]{{Element1: harry, Element2: privetDrive},
 				{Element1: harry, Element2: dormitory}},
 		},
 		{
@@ -102,7 +101,7 @@ func TestBiOps(t *testing.T) {
 			persons:   allPersons,
 			addresses: allAddresses,
 			filter:    noFilter,
-			expected: []types.Pair[Person, Address]{
+			expected: []q4c.Pair[Person, Address]{
 				{Element1: harry, Element2: dormitory},
 				{Element1: harry, Element2: privetDrive},
 				{Element1: ron, Element2: burrow},
@@ -116,7 +115,7 @@ func TestBiOps(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, tt.expected, result)
 
-			collected := make([]types.Pair[Person, Address], 0)
+			collected := make([]q4c.Pair[Person, Address], 0)
 			for pair, err := range q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
 				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).Stream() {
 				require.NoError(t, err)
