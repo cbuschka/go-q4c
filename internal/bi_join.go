@@ -88,7 +88,7 @@ func generateInnerJoinSeq[E1 any, E2 any](source1 Source[E1], key1 types.KeyFunc
 			for element1, err := range source1() {
 				if err != nil {
 					if !yield(empty, err) {
-						break
+						return
 					}
 				}
 				element1Key := key1(element1)
@@ -96,7 +96,7 @@ func generateInnerJoinSeq[E1 any, E2 any](source1 Source[E1], key1 types.KeyFunc
 				if found {
 					for _, element2 := range elements {
 						if !yield(types.Pair[E1, E2]{Element1: element1, Element2: element2}, nil) {
-							break
+							return
 						}
 					}
 				}

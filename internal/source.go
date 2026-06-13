@@ -20,7 +20,13 @@ func SourceFromSlice[E any](elements []E) Source[E] {
 func (s Source[E]) FilteredBy(cond func(element E) bool) Source[E] {
 	filteredSource := func() iter.Seq2[E, error] {
 		return func(yield func(E, error) bool) {
-			for e := range s() {
+			var empty E
+			for e, err := range s() {
+				if err != nil {
+					if !yield(empty, err) {
+						return
+					}
+				}
 				if !cond(e) {
 					continue
 				}

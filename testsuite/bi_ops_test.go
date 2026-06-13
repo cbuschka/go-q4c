@@ -1,13 +1,14 @@
-package q4c
+package testsuite
 
 import (
 	"testing"
 
+	"github.com/cbuschka/go-q4c"
 	"github.com/cbuschka/go-q4c/types"
 	"github.com/stretchr/testify/require"
 )
 
-func TestBiOps_JoinToSlice(t *testing.T) {
+func TestBiOps(t *testing.T) {
 	type Person struct {
 		Id   int
 		Name string
@@ -41,40 +42,50 @@ func TestBiOps_JoinToSlice(t *testing.T) {
 
 	noPairs := []types.Pair[Person, Address]{}
 
+	noFilter := func(Person, Address) bool {
+		return true
+	}
+
 	tests := []struct {
 		name      string
 		persons   []Person
 		addresses []Address
+		filter    func(Person, Address) bool
 		expected  []types.Pair[Person, Address]
 	}{
 		{
 			name:      "inner join, empy left",
 			persons:   noPersons,
 			addresses: allAddresses,
+			filter:    noFilter,
 			expected:  noPairs,
 		},
 		{
 			name:      "inner join, empy right",
 			persons:   allPersons,
 			addresses: noAddresses,
+			filter:    noFilter,
 			expected:  noPairs,
 		},
 		{
 			name:      "inner join, single, no match",
 			persons:   []Person{harry},
 			addresses: []Address{shack},
+			filter:    noFilter,
 			expected:  noPairs,
 		},
 		{
 			name:      "inner join, single, one to one",
 			persons:   []Person{harry},
 			addresses: []Address{dormitory},
+			filter:    noFilter,
 			expected:  []types.Pair[Person, Address]{{Element1: harry, Element2: dormitory}},
 		},
 		{
 			name:      "inner join, two, one to one",
 			persons:   []Person{harry, ron},
 			addresses: []Address{burrow, dormitory},
+			filter:    noFilter,
 			expected: []types.Pair[Person, Address]{{Element1: harry, Element2: dormitory},
 				{Element1: ron, Element2: burrow}},
 		},
@@ -82,6 +93,7 @@ func TestBiOps_JoinToSlice(t *testing.T) {
 			name:      "inner join, one, one to may",
 			persons:   []Person{harry},
 			addresses: []Address{privetDrive, dormitory},
+			filter:    noFilter,
 			expected: []types.Pair[Person, Address]{{Element1: harry, Element2: privetDrive},
 				{Element1: harry, Element2: dormitory}},
 		},
@@ -89,6 +101,7 @@ func TestBiOps_JoinToSlice(t *testing.T) {
 			name:      "inner join, all",
 			persons:   allPersons,
 			addresses: allAddresses,
+			filter:    noFilter,
 			expected: []types.Pair[Person, Address]{
 				{Element1: harry, Element2: dormitory},
 				{Element1: harry, Element2: privetDrive},
@@ -98,10 +111,27 @@ func TestBiOps_JoinToSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := NewBiSet[Person, Address]().SelectFrom(tt.persons).
-				Join(tt.addresses).On(idOfPerson, personIdOfAddress).ToSlice()
+			result, err := q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
+				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).ToSlice()
 			require.NoError(t, err)
 			require.Equal(t, tt.expected, result)
+
+			collected := make([]types.Pair[Person, Address], 0)
+			for pair, err := range q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
+				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).Stream() {
+				require.NoError(t, err)
+				collected = append(collected, pair)
+			}
+			require.Equal(t, tt.expected, collected)
+
+			first, found, err := q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
+				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).First()
+			require.NoError(t, err)
+			require.Equal(t, len(tt.expected) > 0, found)
+			if found {
+				require.Equal(t, tt.expected[0], first)
+			}
+
 		})
 	}
 
