@@ -5,9 +5,9 @@ import "iter"
 type UniFilterCondition[E1 any] func(e E1) bool
 
 type UniSelect[E1 any] interface {
-	Stream() iter.Seq[E1]
-	ToSlice() []E1
-	First() (element E1, found bool)
+	Stream() iter.Seq2[E1, error]
+	ToSlice() ([]E1, error)
+	First() (E1, bool, error)
 }
 
 type FilterableUniSelect[E1 any] interface {

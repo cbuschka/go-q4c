@@ -1,7 +1,8 @@
 package q4c
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"testing"
 )
 
@@ -16,8 +17,9 @@ func TestUniOps_SelectAllToSlice(t *testing.T) {
 		{Id: 2, Name: "Tarzan"},
 	}
 
-	result := SelectFrom(persons).ToSlice()
-	assert.Equal(t, result, persons)
+	result, err := SelectFrom(persons).ToSlice()
+	require.NoError(t, err)
+	require.Equal(t, result, persons)
 }
 
 func TestUniOps_SelectWithFilterToSlice(t *testing.T) {
@@ -31,8 +33,9 @@ func TestUniOps_SelectWithFilterToSlice(t *testing.T) {
 		{Id: 2, Name: "Tarzan"},
 	}
 
-	result := SelectFrom(persons).Where(func(p Person) bool {
+	result, err := SelectFrom(persons).Where(func(p Person) bool {
 		return p.Id == 1
 	}).ToSlice()
-	assert.Equal(t, result, []Person{persons[0]})
+	require.NoError(t, err)
+	require.Equal(t, result, []Person{persons[0]})
 }
