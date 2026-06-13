@@ -23,9 +23,8 @@ func (s Source[E]) FilteredBy(cond func(element E) bool) Source[E] {
 			var empty E
 			for e, err := range s() {
 				if err != nil {
-					if !yield(empty, err) {
-						return
-					}
+					yield(empty, err)
+					return
 				}
 				if !cond(e) {
 					continue
@@ -46,9 +45,8 @@ func NewSourceMappedBy[E any, R any](source Source[E], mapper func(element E) (R
 			var emptyR R
 			for e, err := range source() {
 				if err != nil {
-					if !yield(emptyR, err) {
-						return
-					}
+					yield(emptyR, err)
+					return
 				}
 				r, err := mapper(e)
 				if err != nil {

@@ -66,12 +66,11 @@ func (s *joinedBiSetImpl[E1, E2]) Stream() iter.Seq2[types.Pair[E1, E2], error] 
 	return func(yield func(types.Pair[E1, E2], error) bool) {
 		for pair, err := range s.source() {
 			if err != nil {
-				if !yield(empty, err) {
-					break
-				}
+				yield(empty, err)
+				return
 			}
 			if !yield(pair, nil) {
-				break
+				return
 			}
 		}
 	}

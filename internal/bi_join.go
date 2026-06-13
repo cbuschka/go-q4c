@@ -44,21 +44,20 @@ func generateLeftOuterJoinSeq[E1 any, E2 any](source1 Source[E1], key1 types.Key
 			var empty types.Pair[E1, E2]
 			for element1, err := range source1() {
 				if err != nil {
-					if !yield(empty, err) {
-						break
-					}
+					yield(empty, err)
+					return
 				}
 				element1Key := key1(element1)
 				elements, found := index[element1Key]
 				if !found {
 					var emptyE2 E2
 					if !yield(types.Pair[E1, E2]{Element1: element1, Element2: emptyE2}, nil) {
-						break
+						return
 					}
 				} else {
 					for _, element2 := range elements {
 						if !yield(types.Pair[E1, E2]{Element1: element1, Element2: element2}, nil) {
-							break
+							return
 						}
 					}
 				}
@@ -87,9 +86,8 @@ func generateInnerJoinSeq[E1 any, E2 any](source1 Source[E1], key1 types.KeyFunc
 			var empty types.Pair[E1, E2]
 			for element1, err := range source1() {
 				if err != nil {
-					if !yield(empty, err) {
-						return
-					}
+					yield(empty, err)
+					return
 				}
 				element1Key := key1(element1)
 				elements, found := index[element1Key]
