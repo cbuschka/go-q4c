@@ -59,8 +59,7 @@ func (s *JoinableBiSelect[E1, E2]) Join(elements []E2) *JoiningBiSet[E1, E2] {
 }
 
 func (s *JoiningBiSet[E1, E2]) On(key1 KeyFunc[E1, any], key2 KeyFunc[E2, any]) *FilterableBiSelect[E1, E2] {
-	var s2 source[Pair[E1, E2]]
-	s2 = join(s.joinType, s.source, key1, s.source2, key2)
+	s2 := join(s.joinType, s.source, key1, s.source2, key2)
 	impl := FilterableBiSelect[E1, E2]{source: s2}
 	return &impl
 }
