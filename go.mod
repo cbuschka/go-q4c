@@ -1,6 +1,6 @@
 module github.com/cbuschka/go-q4c
 
-go 1.25
+go 1.27rc1
 
 require github.com/stretchr/testify v1.11.1
 
