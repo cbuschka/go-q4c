@@ -11,8 +11,8 @@ persons := []Person{
     {Id: 2, Name: "Tarzan"},
 }
 
-selected = SelectFrom(persons).
-	Where(func(p Person) bool {return p.Id == 1}).
+selected = q4c.SelectFrom(persons).
+	Where( (p Person) bool => p.Id == 1).
 	ToSlice()
 ```
 
