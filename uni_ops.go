@@ -6,12 +6,12 @@ import (
 
 type UniFilterCondition[E1 any] func(e E1) bool
 
-func NewUniSet[E1 any]() *UniSet[E1] {
+func newUniSet[E1 any]() *UniSet[E1] {
 	return &UniSet[E1]{}
 }
 
 func SelectFrom[E1 any](elements []E1) *FilterableUniSelect[E1] {
-	return NewUniSet[E1]().SelectFrom(elements)
+	return newUniSet[E1]().SelectFrom(elements)
 }
 
 type UniSet[E1 any] struct {
@@ -24,6 +24,17 @@ type FilterableUniSelect[E1 any] struct {
 type FilteredUniSelect[E1 any] struct {
 	source source[E1]
 }
+
+func (u *FilterableUniSelect[E1]) LeftOuterJoin[E2 any](elements2 []E2) *JoiningBiSet[E1, E2] {
+	source2 := newSourceFromSlice(elements2)
+	return &JoiningBiSet[E1, E2]{source: u.source, source2: source2, joinType: leftJoin}
+}
+
+func (u *FilterableUniSelect[E1]) Join[E2 any](elements2 []E2) *JoiningBiSet[E1, E2] {
+	source2 := newSourceFromSlice(elements2)
+	return &JoiningBiSet[E1, E2]{source: u.source, source2: source2, joinType: innerJoin}
+}
+
 
 func (u *FilterableUniSelect[E1]) Where(cond UniFilterCondition[E1]) *FilteredUniSelect[E1] {
 	filteredSource := u.source.filteredBy(cond)

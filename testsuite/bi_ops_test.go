@@ -110,20 +110,20 @@ func TestBiOps(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
+			result, err := q4c.SelectFrom(tt.persons).
 				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).ToSlice()
 			require.NoError(t, err)
 			require.Equal(t, tt.expected, result)
 
 			collected := make([]q4c.Pair[Person, Address], 0)
-			for pair, err := range q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
+			for pair, err := range q4c.SelectFrom(tt.persons).
 				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).Stream() {
 				require.NoError(t, err)
 				collected = append(collected, pair)
 			}
 			require.Equal(t, tt.expected, collected)
 
-			first, found, err := q4c.NewBiSet[Person, Address]().SelectFrom(tt.persons).
+			first, found, err := q4c.SelectFrom(tt.persons).
 				Join(tt.addresses).On(idOfPerson, personIdOfAddress).Where(tt.filter).First()
 			require.NoError(t, err)
 			require.Equal(t, len(tt.expected) > 0, found)

@@ -13,7 +13,7 @@ type JoinableBiSelect[E1 any, E2 any] struct {
 
 type BiFilterCondition[E1 any, E2 any] func(e E1, e2 E2) bool
 
-func NewBiSet[E1 any, E2 any]() *BiSet[E1, E2] {
+func newBiSet[E1 any, E2 any]() *BiSet[E1, E2] {
 	return &BiSet[E1, E2]{}
 }
 
